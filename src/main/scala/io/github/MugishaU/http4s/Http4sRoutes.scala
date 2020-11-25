@@ -30,4 +30,16 @@ object Http4sRoutes {
         } yield resp
     }
   }
+
+  def helloKaluzaRoutes[F[_]: Sync](H: HelloKaluza[F]): HttpRoutes[F] = {
+    val dsl = new Http4sDsl[F]{}
+    import dsl._
+    HttpRoutes.of[F]{
+      case GET -> Root / "kaluza" / name =>
+        for{
+          greeting <- H.hello(HelloKaluza.Name(name))
+          resp <- Ok(greeting)
+        }yield resp
+    }
+  }
 }
