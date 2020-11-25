@@ -14,6 +14,7 @@ object Http4sServer {
   def stream[F[_]: ConcurrentEffect](implicit T: Timer[F]): Stream[F, Nothing] = {
     for {
       client <- BlazeClientBuilder[F](global).stream
+      helloKaluzaAlg = HelloKaluza.impl[F]
       helloWorldAlg = HelloWorld.impl[F]
       jokeAlg = Jokes.impl[F](client)
 
@@ -22,6 +23,7 @@ object Http4sServer {
       // want to extract a segments not checked
       // in the underlying routes.
       httpApp = (
+        Http4sRoutes.helloKaluzaRoutes[F](helloKaluzaAlg) <+>
         Http4sRoutes.helloWorldRoutes[F](helloWorldAlg) <+>
         Http4sRoutes.jokeRoutes[F](jokeAlg)
       ).orNotFound
